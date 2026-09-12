@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets — never commit
+.env
+.env.*
+
+# Replit / editor internals (.replit itself is committed on purpose)
+.cache/
+.config/
+.local/
+.agents/
+
+# Assignment brief — not published in a public repo
+docs/
