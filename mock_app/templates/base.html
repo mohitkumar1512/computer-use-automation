@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}Member Services{% endblock %} - ACME Community Credit Union (DEMO)</title>
+  <style>
+    body { font-family: Verdana, Arial, sans-serif; font-size: 12px; background: #d4d0c8; margin: 0; }
+    .banner { background: #003366; color: #ffffff; }
+    .banner td { padding: 6px 10px; }
+    .panel { background: #ffffff; border: 1px solid #808080; }
+    .section-title { background: #336699; color: #ffffff; font-weight: bold; padding: 3px 6px; }
+    .grid th { background: #c0c0c0; text-align: left; border: 1px solid #808080; padding: 3px 6px; }
+    .grid td { border: 1px solid #c0c0c0; padding: 3px 6px; }
+    .message { color: #990000; font-weight: bold; }
+    .money { text-align: right; font-family: "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <table class="banner" width="100%" cellspacing="0">
+    <tr>
+      <td><b>ACME COMMUNITY CREDIT UNION</b> &mdash; MEMBER SERVICES v4.2 (DEMO)</td>
+      <td align="right">
+        {% if session.operator %}
+          Operator: {{ session.operator }}
+          <form method="post" action="{{ url_for('auth.logout') }}" style="display:inline">
+            <input type="submit" value="Log Off">
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="10"><tr><td>
+    {% block content %}{% endblock %}
+  </td></tr></table>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "_note": "All data is fictional. SSNs start with 9 (never issued), phones use 555-01xx, emails use example.com.",
+  "members": [
+    {
+      "member_id": "12345",
+      "first_name": "Jordan",
+      "last_name": "Rivera",
+      "date_of_birth": "1984-03-17",
+      "ssn": "900-12-3456",
+      "phone": "555-0142",
+      "email": "jordan.rivera@example.com",
+      "member_since": "2011-06-02",
+      "accounts": [
+        {"account_number": "100012345-01", "type": "Share Savings", "status": "Open", "balance": "2450.00"},
+        {"account_number": "100012345-10", "type": "Checking", "status": "Open", "balance": "1318.72"}
+      ]
+    },
+    {
+      "member_id": "20488",
+      "first_name": "Priya",
+      "last_name": "Natarajan",
+      "date_of_birth": "1971-11-05",
+      "ssn": "912-48-7730",
+      "phone": "555-0187",
+      "email": "priya.natarajan@example.com",
+      "member_since": "1998-02-14",
+      "accounts": [
+        {"account_number": "100020488-01", "type": "Share Savings", "status": "Open", "balance": "15020.10"},
+        {"account_number": "100020488-20", "type": "Money Market", "status": "Open", "balance": "40000.00"},
+        {"account_number": "100020488-70", "type": "Auto Loan", "status": "Open", "balance": "12450.33"}
+      ]
+    },
+    {
+      "member_id": "31007",
+      "first_name": "Samuel",
+      "last_name": "Okafor",
+      "date_of_birth": "2001-07-29",
+      "ssn": "923-10-0071",
+      "phone": "555-0119",
+      "email": "samuel.okafor@example.com",
+      "member_since": "2019-09-30",
+      "accounts": [
+        {"account_number": "100031007-01", "type": "Share Savings", "status": "Open", "balance": "5.00"},
+        {"account_number": "100031007-10", "type": "Checking", "status": "Closed", "balance": "0.00"}
+      ]
+    }
+  ]
+}

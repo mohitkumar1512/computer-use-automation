@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Member {{ member.member_id }}{% endblock %}
+{% block content %}
+<table class="panel" cellpadding="6" cellspacing="0" width="640">
+  <tr><td class="section-title" colspan="4">MEMBER DETAIL &mdash; #{{ member.member_id }}</td></tr>
+  <tr>
+    <td><b>Name:</b></td><td>{{ member.first_name }} {{ member.last_name }}</td>
+    <td><b>Member Since:</b></td><td>{{ member.member_since }}</td>
+  </tr>
+  <tr>
+    <td><b>Date of Birth:</b></td><td>{{ member.date_of_birth }}</td>
+    <td><b>SSN:</b></td><td>{{ member.ssn }}</td>
+  </tr>
+  <tr>
+    <td><b>Phone:</b></td><td>{{ member.phone }}</td>
+    <td><b>E-mail:</b></td><td>{{ member.email }}</td>
+  </tr>
+</table>
+<br>
+<table class="panel grid" cellpadding="0" cellspacing="0" width="640">
+  <tr><td class="section-title" colspan="4">ACCOUNTS</td></tr>
+  <tr><th>Account Number</th><th>Type</th><th>Status</th><th>Balance</th></tr>
+  {% for account in member.accounts %}
+  <tr>
+    <td>{{ account.account_number }}</td>
+    <td>{{ account.type }}</td>
+    <td>{{ account.status }}</td>
+    <td class="money">{{ account.balance | money }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p><a href="{{ url_for('members.search') }}">&lt;&lt; New Member Inquiry</a></p>
+{% endblock %}

@@ -18,23 +18,31 @@ The core idea:
    session, then hands control back.
 5. **Guard** — every action passes an allowlist/risk policy, and sensitive data is redacted.
 
-> **Status:** early development — Milestone M0 (project skeleton) complete.
+> **Status:** early development — Milestones M0–M1 complete (skeleton, mock app).
 > See [Roadmap](#roadmap) for progress. Sections marked *(planned)* describe intended design.
 
 ---
 
 ## Setup
 
-Requires **Python 3.12+**.
+Requires **Python 3.12+** and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -v
+uv sync                      # creates the environment from uv.lock (dev + mock groups)
+uv run python -m pytest -v
 ```
 
-Use `.venv/bin/python -m pytest` rather than `.venv/bin/pytest`: invoking the interpreter directly
-guarantees the virtual environment's packages are used.
+### Run the mock app
+
+```bash
+uv run python -m mock_app --port 5000
+```
+
+Open `http://localhost:5000` and sign on as `teller1` / `teller-demo-pass` (fictional operator).
+Seeded members: `12345`, `20488`, `31007` — all data in `mock_app/data/` is fictional.
+
+Always go through `uv run` rather than activating an environment by hand: it syncs against
+`uv.lock` first and uses whichever environment uv manages.
 
 ### Configuration
 
@@ -45,7 +53,8 @@ guarantees the virtual environment's packages are used.
 ### Replit notes
 
 - `.replit` loads the `python-3.12` module (provides pip and the C++ runtime Playwright needs).
-- Replit's pip config forces user installs; inside a venv, prefix installs with `PIP_USER=0`.
+- Replit sets `UV_PROJECT_ENVIRONMENT=.pythonlibs`, so uv installs there instead of `.venv/`;
+  `uv run` handles this transparently.
 - Replit ships a Playwright-compatible Chromium at `$REPLIT_PLAYWRIGHT_CHROMIUM_EXECUTABLE`, which
   is why Playwright is pinned to `1.55.0`.
 
@@ -109,7 +118,8 @@ allowed?).
 | Guardrails | One policy gate for discovery, replay, *and* human actions | A guardrail with a bypass isn't a guardrail — no code path reaches the surface without policy. |
 | Artifact origin | LLM produces a **trace**; a deterministic **compiler** produces the artifact | Locators come from real elements, not model-invented selectors, and the artifact is decoupled from the transcript (which may contain sensitive data). |
 | Perception | Accessibility tree first, screenshots as supporting evidence | Roles and names survive markup changes and also exist on desktop platforms. Unlabeled legacy controls will need fallback locators (M16). |
-| Target app | Local mock credit-union app | Legal, no real PII, and lets us inject failures (not found, timeouts, dialogs) on demand. |
+| Target app | Local mock credit-union app (Flask, server-rendered) | Legal, no real PII, and lets us inject failures (not found, timeouts, dialogs) on demand. It's a separate process standing in for vendor software, so its framework is independent of `cua`. |
+| Mock data | JSON seed files → in-memory store with reset | Stable known values for replay assertions; PII-shaped but obviously fictional data to exercise redaction; resettable after mutating flows. |
 
 ---
 
@@ -120,7 +130,7 @@ allowed?).
 | Language | Python 3.12 | Readable for reviewers; Pydantic suits the typed artifact schema. |
 | Browser automation | Playwright (async) | Reliable waiting, accessibility snapshots, and async fits the live-handoff model. |
 | LLM | OpenAI (model chosen in M4) | Available API access; structured outputs for typed actions. |
-| Packaging | `pyproject.toml` + pip | Modern Python standard; no extra tooling for reviewers. |
+| Packaging | `pyproject.toml` + uv (`uv.lock`) | Reproducible, locked installs with one fast command; dev/mock deps are dependency groups since they aren't part of `cua` itself. |
 | Tests | pytest | Standard and minimal. |
 
 Dependencies are added in the milestone that first needs them, so each commit shows why.
@@ -133,7 +143,7 @@ Built in small, runnable, individually committed milestones.
 
 **Phase A — Foundations**
 - [x] **M0** Project skeleton: `pyproject.toml`, `src/` layout, file-length test
-- [ ] **M1** Mock app v1: member search → member detail (happy path)
+- [x] **M1** Mock app v1: login → member search → member detail (Flask, JSON seed data)
 - [ ] **M2** Surface (perceive): accessibility snapshot + screenshot of the mock app
 - [ ] **M3** Surface (act): scripted search for a member, no LLM
 
@@ -167,8 +177,10 @@ Built in small, runnable, individually committed milestones.
 
 ```
 ├── pyproject.toml     project metadata, dependencies, tool config
+├── uv.lock            locked dependency versions (commit it; update with `uv lock`)
 ├── src/cua/           the automation system (our product)
-├── mock_app/          stand-in legacy bank app — deliberately separate from src/   (M1)
+├── mock_app/          stand-in legacy bank app (Flask) — deliberately separate from src/
+│   └── data/          fictional seed data (JSON)
 ├── tests/             pytest suite
 └── evidence/          discovery & replay run logs and artifacts                     (M5+)
 ```

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Member Search{% endblock %}
+{% block content %}
+<table class="panel" cellpadding="6" cellspacing="0" width="480">
+  <tr><td class="section-title" colspan="2">MEMBER INQUIRY</td></tr>
+  {% if message %}
+  <tr><td colspan="2" class="message">{{ message }}</td></tr>
+  {% endif %}
+  <form method="get" action="{{ url_for('members.search') }}">
+    <tr>
+      <td><label for="member_id">Member Number:</label></td>
+      <td><input id="member_id" name="member_id" size="12" value="{{ member_id }}"></td>
+    </tr>
+    <tr><td></td><td><input type="submit" value="Search"></td></tr>
+  </form>
+</table>
+{% endblock %}

@@ -1,0 +1,10 @@
+{
+  "operators": [
+    {
+      "username": "teller1",
+      "display_name": "Teller One",
+      "role": "teller",
+      "password_hash": "scrypt:32768:8:1$5oawzuxdacfQCGoQ$8f8450388f8b996ada051c79c287cfdb8f96ad78a4917441f3a962102d0e75eb64e3815dd32578d51c572956d53e9793096deac047b81de9643efeac1fe95f99"
+    }
+  ]
+}
