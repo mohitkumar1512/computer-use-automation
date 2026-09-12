@@ -16,6 +16,9 @@ __pycache__/
 .local/
 .agents/
 .claude/settings.local.json
+# Claude Code user config kept in the workspace so it survives restarts (CLAUDE_CONFIG_DIR).
+# Holds login credentials and session transcripts — must never be committed.
+.claude-user/
 
 # Assignment brief — not published in a public repo
 docs/
