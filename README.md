@@ -18,7 +18,7 @@ The core idea:
    session, then hands control back.
 5. **Guard** — every action passes an allowlist/risk policy, and sensitive data is redacted.
 
-> **Status:** early development — Milestones M0–M2 complete (skeleton, mock app, perception).
+> **Status:** early development — Milestones M0–M3 complete (skeleton, mock app, perceive, act).
 > See [Roadmap](#roadmap) for progress. Sections marked *(planned)* describe intended design.
 
 ---
@@ -49,7 +49,15 @@ With the mock app running, print a page's accessibility snapshot (and optionally
 uv run python -m cua.surface http://localhost:5000/login --out /tmp/observation
 ```
 
-Browser tests and the command above need Chromium. Replit provides one (see below); elsewhere run
+### Scripted member lookup (no LLM)
+
+Signs on and opens a member's detail page through the surface, printing the final snapshot:
+
+```bash
+CUA_USERNAME=teller1 CUA_PASSWORD=teller-demo-pass uv run python -m cua.scripted 12345
+```
+
+Browser tests and the commands above need Chromium. Replit provides one (see below); elsewhere run
 `uv run playwright install chromium` once.
 
 Always go through `uv run` rather than activating an environment by hand: it syncs against
@@ -59,6 +67,7 @@ Always go through `uv run` rather than activating an environment by hand: it syn
 
 | Variable | Needed from | Purpose |
 |---|---|---|
+| `CUA_USERNAME`, `CUA_PASSWORD` | M3 | Operator sign-on for the target app. Read from the environment so credentials never appear in code, arguments, or artifacts. |
 | `OPENAI_API_KEY` | M4 | LLM access for discovery runs. Never commit it — use env vars / secrets. |
 
 ### Replit notes
@@ -131,6 +140,7 @@ allowed?).
 | Perception | Accessibility tree first, screenshots as supporting evidence | Roles and names survive markup changes and also exist on desktop platforms. Unlabeled legacy controls will need fallback locators (M16). |
 | Target app | Local mock credit-union app (Flask, server-rendered) | Legal, no real PII, and lets us inject failures (not found, timeouts, dialogs) on demand. It's a separate process standing in for vendor software, so its framework is independent of `cua`. |
 | Snapshot format | Playwright's ARIA snapshot (YAML-like text) of `body` | Compact, readable by both humans and LLMs, and the format Playwright maintains (the older `page.accessibility` API is deprecated). Legacy layout tables make it noisy — outer rows repeat the whole page's text — which matters for token budgets in M4. |
+| Element targeting | Role + **exact** accessible name (`button "Search"`); zero or several matches is an error | Targets use the same names the LLM sees in the snapshot. Never "first match": on the mock app, the first submit button after sign-on is *Log Off*, so guessing silently logs the operator out. |
 | Mock data | JSON seed files → in-memory store with reset | Stable known values for replay assertions; PII-shaped but obviously fictional data to exercise redaction; resettable after mutating flows. |
 
 ---
@@ -157,7 +167,7 @@ Built in small, runnable, individually committed milestones.
 - [x] **M0** Project skeleton: `pyproject.toml`, `src/` layout, file-length test
 - [x] **M1** Mock app v1: login → member search → member detail (Flask, JSON seed data)
 - [x] **M2** Surface (perceive): accessibility snapshot + screenshot of the mock app
-- [ ] **M3** Surface (act): scripted search for a member, no LLM
+- [x] **M3** Surface (act): scripted search for a member, no LLM
 
 **Phase B — The LLM discovers**
 - [ ] **M4** Single LLM step: goal + snapshot → one structured action
@@ -191,7 +201,8 @@ Built in small, runnable, individually committed milestones.
 ├── pyproject.toml     project metadata, dependencies, tool config
 ├── uv.lock            locked dependency versions (commit it; update with `uv lock`)
 ├── src/cua/           the automation system (our product)
-│   └── surface/       perceive (and, from M3, act on) a UI — Playwright web surface
+│   ├── surface/       perceive and act on a UI — actions, targets, Playwright web surface
+│   └── scripted.py    hand-written member lookup (no LLM); replaced by artifacts in M7
 ├── mock_app/          stand-in legacy bank app (Flask) — deliberately separate from src/
 │   └── data/          fictional seed data (JSON)
 ├── tests/             pytest suite

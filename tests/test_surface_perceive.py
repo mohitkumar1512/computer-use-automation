@@ -2,7 +2,7 @@
 
 import asyncio
 
-from cua.surface import Observation, WebSurface, launch_page
+from cua.surface import Click, Fill, Navigate, Observation, Target, WebSurface, launch_page
 from tests.conftest import DEMO_PASSWORD, DEMO_USERNAME
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -11,14 +11,15 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 def perceive(base_url: str, path: str, *, log_in: bool = False) -> Observation:
     async def run() -> Observation:
         async with launch_page() as page:
-            if log_in:  # test setup only — acting through the surface arrives in M3
-                await page.goto(f"{base_url}/login")
-                await page.fill("#username", DEMO_USERNAME)
-                await page.fill("#password", DEMO_PASSWORD)
-                await page.click("input[type=submit]")
+            surface = WebSurface(page)
+            if log_in:
+                await surface.act(Navigate(f"{base_url}/login"))
+                await surface.act(Fill(Target("textbox", "User ID:"), DEMO_USERNAME))
+                await surface.act(Fill(Target("textbox", "Password:"), DEMO_PASSWORD))
+                await surface.act(Click(Target("button", "Sign On")))
                 await page.wait_for_url("**/members/search")
-            await page.goto(f"{base_url}{path}")
-            return await WebSurface(page).perceive()
+            await surface.act(Navigate(f"{base_url}{path}"))
+            return await surface.perceive()
 
     return asyncio.run(run())
 

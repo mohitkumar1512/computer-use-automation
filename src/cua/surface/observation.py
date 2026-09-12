@@ -3,6 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from cua.surface.actions import Action
+
 
 @dataclass(frozen=True)
 class Observation:
@@ -20,6 +22,10 @@ class Observation:
 
 
 class Surface(Protocol):
-    """The seam between the automation system and a concrete UI. Acting arrives in M3."""
+    """The seam between the automation system and a concrete UI."""
 
     async def perceive(self) -> Observation: ...
+
+    async def act(self, action: Action) -> None:
+        """Perform one action; raises a SurfaceError if its target can't be resolved."""
+        ...
