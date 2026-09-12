@@ -18,7 +18,7 @@ The core idea:
    session, then hands control back.
 5. **Guard** — every action passes an allowlist/risk policy, and sensitive data is redacted.
 
-> **Status:** early development — Milestones M0–M1 complete (skeleton, mock app).
+> **Status:** early development — Milestones M0–M2 complete (skeleton, mock app, perception).
 > See [Roadmap](#roadmap) for progress. Sections marked *(planned)* describe intended design.
 
 ---
@@ -40,6 +40,17 @@ uv run python -m mock_app --port 5000
 
 Open `http://localhost:5000` and sign on as `teller1` / `teller-demo-pass` (fictional operator).
 Seeded members: `12345`, `20488`, `31007` — all data in `mock_app/data/` is fictional.
+
+### Perceive a page
+
+With the mock app running, print a page's accessibility snapshot (and optionally save a screenshot):
+
+```bash
+uv run python -m cua.surface http://localhost:5000/login --out /tmp/observation
+```
+
+Browser tests and the command above need Chromium. Replit provides one (see below); elsewhere run
+`uv run playwright install chromium` once.
 
 Always go through `uv run` rather than activating an environment by hand: it syncs against
 `uv.lock` first and uses whichever environment uv manages.
@@ -119,6 +130,7 @@ allowed?).
 | Artifact origin | LLM produces a **trace**; a deterministic **compiler** produces the artifact | Locators come from real elements, not model-invented selectors, and the artifact is decoupled from the transcript (which may contain sensitive data). |
 | Perception | Accessibility tree first, screenshots as supporting evidence | Roles and names survive markup changes and also exist on desktop platforms. Unlabeled legacy controls will need fallback locators (M16). |
 | Target app | Local mock credit-union app (Flask, server-rendered) | Legal, no real PII, and lets us inject failures (not found, timeouts, dialogs) on demand. It's a separate process standing in for vendor software, so its framework is independent of `cua`. |
+| Snapshot format | Playwright's ARIA snapshot (YAML-like text) of `body` | Compact, readable by both humans and LLMs, and the format Playwright maintains (the older `page.accessibility` API is deprecated). Legacy layout tables make it noisy — outer rows repeat the whole page's text — which matters for token budgets in M4. |
 | Mock data | JSON seed files → in-memory store with reset | Stable known values for replay assertions; PII-shaped but obviously fictional data to exercise redaction; resettable after mutating flows. |
 
 ---
@@ -144,7 +156,7 @@ Built in small, runnable, individually committed milestones.
 **Phase A — Foundations**
 - [x] **M0** Project skeleton: `pyproject.toml`, `src/` layout, file-length test
 - [x] **M1** Mock app v1: login → member search → member detail (Flask, JSON seed data)
-- [ ] **M2** Surface (perceive): accessibility snapshot + screenshot of the mock app
+- [x] **M2** Surface (perceive): accessibility snapshot + screenshot of the mock app
 - [ ] **M3** Surface (act): scripted search for a member, no LLM
 
 **Phase B — The LLM discovers**
@@ -179,6 +191,7 @@ Built in small, runnable, individually committed milestones.
 ├── pyproject.toml     project metadata, dependencies, tool config
 ├── uv.lock            locked dependency versions (commit it; update with `uv lock`)
 ├── src/cua/           the automation system (our product)
+│   └── surface/       perceive (and, from M3, act on) a UI — Playwright web surface
 ├── mock_app/          stand-in legacy bank app (Flask) — deliberately separate from src/
 │   └── data/          fictional seed data (JSON)
 ├── tests/             pytest suite

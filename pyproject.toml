@@ -7,7 +7,9 @@ name = "cua"
 version = "0.1.0"
 description = "Computer-use automation: LLM discovery, recorded capabilities, deterministic replay."
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "playwright==1.55.0",
+]
 
 [dependency-groups]
 dev = ["pytest>=8"]
