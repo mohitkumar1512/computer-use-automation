@@ -1,0 +1,88 @@
+/* Design tokens: warm neutrals, one clay accent, serif for reading and sans for interface.
+   System font stacks only — an operator console should make no third-party requests. */
+
+:root {
+  color-scheme: light dark;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Charter, Georgia,
+    "DejaVu Serif", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
+  --bg: #faf9f5;
+  --bg-sidebar: #f3f1ea;
+  --surface: #ffffff;
+  --surface-muted: #f0eee6;
+  --surface-hover: #ebe8df;
+  --border: #e6e3d9;
+  --border-strong: #d4d0c3;
+  --text: #1f1e1d;
+  --text-muted: #65635d;
+  --text-faint: #8e8b83;
+  --accent: #c6613f;
+  --accent-hover: #b0522f;
+  --accent-soft: #f6e7df;
+  --on-accent: #ffffff;
+  --success: #3b7753;
+  --danger: #b3372a;
+  --danger-soft: #f9e6e2;
+  --focus: #c6613f;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-display: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(31 30 29 / 0.05);
+  --shadow-lg: 0 1px 2px rgb(31 30 29 / 0.04), 0 8px 28px rgb(31 30 29 / 0.07);
+
+  --thread-width: 46rem;
+  --sidebar-width: 17rem;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration: 180ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #262624;
+    --bg-sidebar: #1f1e1d;
+    --surface: #30302e;
+    --surface-muted: #2b2a28;
+    --surface-hover: #3a3936;
+    --border: #3c3b37;
+    --border-strong: #4c4a45;
+    --text: #f3f1eb;
+    --text-muted: #b3b0a7;
+    --text-faint: #8a877f;
+    --accent: #d97757;
+    --accent-hover: #e48b6d;
+    --accent-soft: #45302a;
+    --success: #82c29a;
+    --danger: #ec8574;
+    --danger-soft: #472a25;
+    --focus: #e48b6d;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(0 0 0 / 0.28);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0ms;
+  }
+}

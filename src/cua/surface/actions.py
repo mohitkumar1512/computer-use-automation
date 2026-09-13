@@ -29,6 +29,22 @@ class Click:
 class Fill:
     target: Target
     text: str = field(repr=False)  # may be a password or PII — kept out of logs until M6
+    sensitive: bool = False  # never show the text, even to an operator (e.g. passwords)
 
 
 Action = Navigate | Click | Fill
+
+MASK = "••••••"
+
+
+def describe(action: Action) -> str:
+    """One human-readable line for an action, safe to display: sensitive text is masked."""
+    match action:
+        case Navigate(url=url):
+            return f"Open {url}"
+        case Click(target=target):
+            return f'Click {target.role} "{target.name}"'
+        case Fill(target=target, text=text, sensitive=sensitive):
+            shown = MASK if sensitive else f'"{text}"'
+            return f'Type {shown} into {target.role} "{target.name}"'
+    raise TypeError(f"Unsupported action: {action!r}")

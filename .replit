@@ -1,6 +1,7 @@
 modules = ["nodejs-20", "python-3.12"]
-# The Run button serves the mock credit-union app on port 5000 (shown in the Preview pane).
-run = "uv run python -m mock_app --port 5000"
+# The Run button starts the operator console (port 5000, shown in the Preview pane) and the
+# mock credit-union app it drives (port 5001). See scripts/dev.sh.
+run = "bash scripts/dev.sh"
 
 [env]
 # Keep Claude Code config and session history on the persistent workspace disk (gitignored).

@@ -22,7 +22,7 @@ def member_lookup_actions(
     return [
         Navigate(f"{base_url}/login"),
         Fill(Target("textbox", "User ID:"), username),
-        Fill(Target("textbox", "Password:"), password),
+        Fill(Target("textbox", "Password:"), password, sensitive=True),
         Click(Target("button", "Sign On")),
         Fill(Target("textbox", "Member Number:"), member_id),
         Click(Target("button", "Search")),

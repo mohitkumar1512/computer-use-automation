@@ -18,7 +18,8 @@ The core idea:
    session, then hands control back.
 5. **Guard** — every action passes an allowlist/risk policy, and sensitive data is redacted.
 
-> **Status:** early development — Milestones M0–M3 complete (skeleton, mock app, perceive, act).
+> **Status:** early development — Milestones M0–M3b complete (skeleton, mock app, perceive, act,
+> operator console).
 > See [Roadmap](#roadmap) for progress. Sections marked *(planned)* describe intended design.
 
 ---
@@ -32,7 +33,17 @@ uv sync                      # creates the environment from uv.lock (dev + mock 
 uv run python -m pytest -v
 ```
 
-### Run the mock app
+### Run the console (quickest way to see it working)
+
+```bash
+bash scripts/dev.sh
+```
+
+Starts the operator console on `http://localhost:5000` and the mock app it drives on port `5001`
+(this is what Replit's **Run** button does). Enter a member number and watch each step — action,
+resulting page, live screenshot — then the outcome and the accessibility snapshot the agent saw.
+
+### Run the mock app on its own
 
 ```bash
 uv run python -m mock_app --port 5000
@@ -77,6 +88,8 @@ Always go through `uv run` rather than activating an environment by hand: it syn
   `uv run` handles this transparently.
 - Replit ships a Playwright-compatible Chromium at `$REPLIT_PLAYWRIGHT_CHROMIUM_EXECUTABLE`, which
   is why Playwright is pinned to `1.55.0`.
+- Replit manages the `[[ports]]` entries in `.replit` itself (it adds one for every port a process
+  opens) and its Preview shows local port 5000 — hence the console on 5000 and the mock app on 5001.
 
 ---
 
@@ -141,6 +154,7 @@ allowed?).
 | Target app | Local mock credit-union app (Flask, server-rendered) | Legal, no real PII, and lets us inject failures (not found, timeouts, dialogs) on demand. It's a separate process standing in for vendor software, so its framework is independent of `cua`. |
 | Snapshot format | Playwright's ARIA snapshot (YAML-like text) of `body` | Compact, readable by both humans and LLMs, and the format Playwright maintains (the older `page.accessibility` API is deprecated). Legacy layout tables make it noisy — outer rows repeat the whole page's text — which matters for token budgets in M4. |
 | Element targeting | Role + **exact** accessible name (`button "Search"`); zero or several matches is an error | Targets use the same names the LLM sees in the snapshot. Never "first match": on the mock app, the first submit button after sign-on is *Log Off*, so guessing silently logs the operator out. |
+| Operator console | FastAPI + server-sent events; plain HTML/CSS/JS modules, no build step or frontend framework | One-way live updates are exactly what SSE does, with automatic replay on reload. No bundler keeps the repo simple, and system fonts only means the console makes no third-party requests. Page-derived text is rendered with `textContent`, and sensitive typed text is masked before it leaves the server. |
 | Mock data | JSON seed files → in-memory store with reset | Stable known values for replay assertions; PII-shaped but obviously fictional data to exercise redaction; resettable after mutating flows. |
 
 ---
@@ -153,6 +167,8 @@ allowed?).
 | Browser automation | Playwright (async) | Reliable waiting, accessibility snapshots, and async fits the live-handoff model. |
 | LLM | OpenAI (model chosen in M4) | Available API access; structured outputs for typed actions. |
 | Packaging | `pyproject.toml` + uv (`uv.lock`) | Reproducible, locked installs with one fast command; dev/mock deps are dependency groups since they aren't part of `cua` itself. |
+| Web | FastAPI + uvicorn | Async, like the surface; typed request validation via Pydantic. |
+| Frontend | HTML, CSS custom properties, ES modules | Modern browser features cover it (design tokens, `prefers-color-scheme`, `dvh`, `text-wrap`) without a toolchain. |
 | Tests | pytest | Standard and minimal. |
 
 Dependencies are added in the milestone that first needs them, so each commit shows why.
@@ -168,6 +184,8 @@ Built in small, runnable, individually committed milestones.
 - [x] **M1** Mock app v1: login → member search → member detail (Flask, JSON seed data)
 - [x] **M2** Surface (perceive): accessibility snapshot + screenshot of the mock app
 - [x] **M3** Surface (act): scripted search for a member, no LLM
+- [x] **M3b** Operator console v1: start a lookup, watch steps and screenshots live (grows into
+  the goal input in M5 and live takeover in M15)
 
 **Phase B — The LLM discovers**
 - [ ] **M4** Single LLM step: goal + snapshot → one structured action
@@ -202,9 +220,11 @@ Built in small, runnable, individually committed milestones.
 ├── uv.lock            locked dependency versions (commit it; update with `uv lock`)
 ├── src/cua/           the automation system (our product)
 │   ├── surface/       perceive and act on a UI — actions, targets, Playwright web surface
+│   ├── console/       operator console: FastAPI app, run events, static frontend
 │   └── scripted.py    hand-written member lookup (no LLM); replaced by artifacts in M7
 ├── mock_app/          stand-in legacy bank app (Flask) — deliberately separate from src/
 │   └── data/          fictional seed data (JSON)
+├── scripts/dev.sh     start console (5000) + mock app (5001) together
 ├── tests/             pytest suite
 └── evidence/          discovery & replay run logs and artifacts                     (M5+)
 ```
